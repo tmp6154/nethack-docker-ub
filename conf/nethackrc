@@ -1,0 +1,328 @@
+###########################################
+# User Interface options:                 #
+# Curses windowport (a good experience).  #
+# Show experience. It's good to know it.  #
+# Use color display. Monochrome sucks.    #
+# Show turn counter. It's very important. #
+# Show a fancy splash screen.             #
+# Use colors for curses GUI display.      #
+# Display the permanent inventory window. #
+# Disclose with prompt (default to yes).  #
+###########################################
+
+OPTIONS=windowtype:curses
+OPTIONS=showexp
+OPTIONS=color
+OPTIONS=time
+OPTIONS=splash_screen
+OPTIONS=guicolor
+OPTIONS=perm_invent
+OPTIONS=disclose:yi ya yv yg yc yo
+
+###################################################################
+# Automatization options:                                         #
+# Automatically dig, when wielding pick-axe by moving into walls. #
+# Don't pick up anything automatically.                           #
+# Automatically open doors by moving into them.                   #
+# Automatically quiver something, if quiver is empty.             #
+###################################################################
+
+OPTIONS=autodig
+OPTIONS=!autopickup
+OPTIONS=autoopen
+OPTIONS=autoquiver
+
+#############################################################################
+# Display modifiers:                                                        #
+# Highlight a pet. It's easy to confuse a stray cat with a pet.             #
+# Highlight item piles, so it's possible to notice them.                    #
+# Show unseen areas with different color to distinguish lit/non-lit areas.  #
+# Distinguish lit/non-lit corridors.                                        #
+# Use IBM line-drawing characters for smoother dungeon look.                #
+#                                                                           #
+# Ghosts show as a space by default. Let's use "X", which is noticeable.    #
+# Golems show up as "'", which is easy to miss. "7" is much better.         #
+# Boulder shows up as "`", which is ugly. Let's use "0", which looks good.  #
+# Mimic on low XL shows up as "]" - let's make it more apparent with "m".   #
+#############################################################################
+
+OPTIONS=hilite_pet
+OPTIONS=hilite_pile
+OPTIONS=dark_room
+OPTIONS=lit_corridor
+OPTIONS=symset:IBMgraphics
+
+SYMBOLS=S_ghost:X
+SYMBOLS=S_golem:7
+SYMBOLS=S_boulder:0
+SYMBOLS=S_strange_obj:m
+
+############################################################
+# Preferences:                                             #
+# Show full message window.                                #
+# Sort loot both on ground and in inventory.               #
+# Always show inventory menu instead of letter choice.     #
+# Name a customizable fruit (Slime Mold) as "mango".       #
+# Always show uncursed items as "uncursed".                #
+# Don't run with travel/go, walk slow enough.              #
+# Load bones levels, they're fun.                          #
+# Do a paranoid confirmation of important actions.         #
+# Show top ten scores, 2 around own and own score.         #
+# Notify, if picking up this will make you Burdened.       #
+# Use default controls (no numpad).                        #
+# Use alt for extended commands shortcuts.                 #
+# Set message history to 20 messages.                      #
+############################################################
+
+OPTIONS=msg_window:full
+OPTIONS=sortloot:full
+OPTIONS=force_invmenu
+OPTIONS=fruit:mango
+OPTIONS=!implicit_uncursed
+OPTIONS=runmode:walk
+OPTIONS=bones
+OPTIONS=paranoid_confirmation:Confirm quit attack pray wand-break Were-change Remove
+OPTIONS=scores:10t 2a o
+OPTIONS=pickup_burden:unencumbered
+OPTIONS=number_pad:0
+OPTIONS=altmeta
+OPTIONS=msghistory:20
+
+#########################################################################
+# Message handling:                                                     #
+# First section emphasizes delayed instadeaths.                         #
+# Second section emphasizes other possibly important events.            #
+# Third section stops current action if vibrating square is under feet. #
+# Fourth section stops current action if enhancement is available.      #
+# Fifth section stops current action if any status effect occurs.       #
+# Sixth section stops current action if inventory cursing could happen. #
+# Seventh section stops current action if character is nearly-dead.     #
+#########################################################################
+
+MSGTYPE=stop "The couatl swings itself around you!"
+MSGTYPE=stop "The electric eel swings itself around you!"
+MSGTYPE=stop "The giant eel swings itself around you!"
+MSGTYPE=stop "The kraken swings itself around you!"
+MSGTYPE=stop "The python grabs you!"
+MSGTYPE=stop "You don't feel very well."
+MSGTYPE=stop "You are turning a little green."
+MSGTYPE=stop "Your limbs are getting oozy."
+MSGTYPE=stop "Your skin begins to peel away."
+MSGTYPE=stop "You are turning into a green slime."
+MSGTYPE=stop "You are slowing down."
+MSGTYPE=stop "Your limbs are stiffening."
+MSGTYPE=stop "It constricts your throat!"
+MSGTYPE=stop "You find it hard to breathe."
+MSGTYPE=stop "You're gasping for air."
+MSGTYPE=stop "Your blood is having trouble reaching your brain."
+MSGTYPE=stop "You can no longer breathe."
+MSGTYPE=stop "You're turning blue."
+MSGTYPE=stop "Your consciousness is fading."
+MSGTYPE=stop "You feel deathly sick."
+MSGTYPE=stop "You feel much worse."
+MSGTYPE=stop "You feel even worse."
+
+MSGTYPE=stop "You fail to cast the spell correctly."
+MSGTYPE=stop "You see here a cockatrice corpse."
+MSGTYPE=stop "You see here a chickatrice corpse."
+MSGTYPE=stop "You are beginning to feel weak."
+
+MSGTYPE=stop "You feel a strange vibration under your *."
+MSGTYPE=stop "You feel a strange vibration beneath you."
+
+MSGTYPE=stop "You feel more confident "
+
+MSGTYPE=stop "You feel hungry"
+MSGTYPE=stop "You are beginning to feel hungry"
+MSGTYPE=stop "You are getting the munchies"
+MSGTYPE=stop "You feel weak now"
+MSGTYPE=stop "You still have the munchies"
+MSGTYPE=stop "You feel weak"
+MSGTYPE=stop "You are beginning to feel weak"
+MSGTYPE=stop "The munchies are interfering with your motor capabilities"
+MSGTYPE=stop " needs food, badly!"
+MSGTYPE=stop "You only feel hungry now"
+MSGTYPE=stop "You now have a lesser case of the munchies"
+MSGTYPE=stop "You faint from lack of food"
+MSGTYPE=stop "You regain consciousness"
+MSGTYPE=stop "You die from starvation"
+MSGTYPE=stop "You die from hunger and exhaustion"
+MSGTYPE=stop "You feel deathly sick"
+MSGTYPE=stop "You feel even worse"
+MSGTYPE=stop "You feel much worse"
+MSGTYPE=stop "You die from your illness"
+
+MSGTYPE=stop "You feel a malignant aura surround the magic-absorbing blade"
+MSGTYPE=stop "You feel a malignant aura surround you"
+
+MSGTYPE=stop "You hear the howling of the CwnAnnwn..."
+MSGTYPE=stop ", your life force is running out."
+MSGTYPE=stop ", all your powers will be lost..."
+MSGTYPE=stop "You hear the wailing of the Banshee..."
+MSGTYPE=stop " is about to die."
+
+#####################################################################
+# Status highlighting:                                              #
+# Show status highlights for 10 turns.                              #
+# Show hitpoint bar                                                 #
+# Show gold increase with yellow, decrease with brown.              #
+# Show various stuff increase/decrease with green/red respectively. #
+# Assign each alignment a color.                                    #
+# Show various troubles with red color and movement with green.     #
+# Show changes of title and dungeon level.                          #
+# Show carrying capacity with a color scale.                        #
+# Show hunger with a color scale.                                   #
+# Show hitpoints with a color scale.                                #
+# Show power with a color scale.                                    #
+#####################################################################
+
+OPTIONS=statushilites:10
+
+OPTIONS=hitpointbar
+
+OPTIONS=hilite_status: gold/down/brown/up/yellow
+
+OPTIONS=hilite_status: characteristics/down/red&inverse/up/green&inverse
+OPTIONS=hilite_status: experience-level/down/red&inverse/up/green&inverse
+OPTIONS=hilite_status: hitpoints-max/down/red&inverse/up/green&inverse
+OPTIONS=hilite_status: power-max/down/red&inverse/up/green&inverse
+OPTIONS=hilite_status: armor-class/up/red&inverse/down/green&inverse
+OPTIONS=hilite_status: hd/down/red&inverse/up/green&inverse
+
+OPTIONS=hilite_status: alignment/Chaotic/red
+OPTIONS=hilite_status: alignment/Neutral/yellow
+OPTIONS=hilite_status: alignment/Lawful/lightgreen
+
+OPTIONS=hilite_status: condition/major_troubles/red&inverse
+OPTIONS=hilite_status: condition/minor_troubles/red&bold
+OPTIONS=hilite_status: condition/movement/lightgreen
+
+OPTIONS=hilite_status: title/changed/green
+OPTIONS=hilite_status: dungeon-level/changed/green
+
+OPTIONS=hilite_status: cap/burdened/orange/stressed/red&bold/strained/red&bold&underline/overtaxed/red&inverse
+
+OPTIONS=hilite_status: hunger/satiated/yellow/hungry/orange/weak/red&bold/fainting/red&inverse/fainted/red&inverse&underline
+
+OPTIONS=hilite_status: hitpoints/100%/lightcyan&normal
+OPTIONS=hilite_status: hitpoints/<100%/cyan&normal
+OPTIONS=hilite_status: hitpoints/<87%/lightgreen&normal
+OPTIONS=hilite_status: hitpoints/<75%/green&normal
+OPTIONS=hilite_status: hitpoints/<66%/yellow&normal
+OPTIONS=hilite_status: hitpoints/<50%/orange&normal
+OPTIONS=hilite_status: hitpoints/<40%/red&normal
+OPTIONS=hilite_status: hitpoints/<33%/red&bold
+OPTIONS=hilite_status: hitpoints/<20%/red&bold&underline
+OPTIONS=hilite_status: hitpoints/<15%/red&inverse
+OPTIONS=hilite_status: hitpoints/<10%/red&inverse&underline
+
+OPTIONS=hilite_status: power/100%/lightcyan&normal
+OPTIONS=hilite_status: power/<100%/cyan&normal
+OPTIONS=hilite_status: power/<87%/lightgreen&normal
+OPTIONS=hilite_status: power/<75%/green&normal
+OPTIONS=hilite_status: power/<66%/yellow&normal
+OPTIONS=hilite_status: power/<50%/orange&normal
+OPTIONS=hilite_status: power/<40%/red&normal
+OPTIONS=hilite_status: power/<33%/red&bold
+OPTIONS=hilite_status: power/<20%/red&bold&underline
+OPTIONS=hilite_status: power/<15%/red&inverse
+OPTIONS=hilite_status: power/<10%/red&inverse&underline
+
+OPTIONS=hilite_status: experience/100%/lightcyan&inverse
+OPTIONS=hilite_status: experience/<99%/lightcyan&normal
+OPTIONS=hilite_status: experience/<86%/cyan&normal
+OPTIONS=hilite_status: experience/<71%/lightgreen&normal
+OPTIONS=hilite_status: experience/<57%/green&normal
+OPTIONS=hilite_status: experience/<43%/yellow&normal
+OPTIONS=hilite_status: experience/<29%/orange&normal
+OPTIONS=hilite_status: experience/<14%/red&normal
+OPTIONS=hilite_status: experience/0%/red&inverse
+
+#####################################################
+# Menu colors:                                      #
+# Enable coloring of menus.                         #
+# Coloring inventory based on BUC.                  #
+# Coloring of holy/unholy water.                    #
+# Color artifact weapons.                           #
+# Color invocation items.                           #
+# Color Amulet of Yendor.                           #
+# Color unidentified magic armor.                   #
+# Color loadstone.                                  #
+# Color items dangerous to put into bag of holding. #
+# Color lit light sources.                          #
+# Color gems and money.                             #
+# Color enhance menu.                               #
+# Fix colors.                                       #
+#####################################################
+
+OPTIONS=menucolors
+
+MENUCOLOR="blessed "=green
+MENUCOLOR="cursed "=red
+MENUCOLOR="uncursed "=yellow
+MENUCOLOR="cursed .* (being worn)"=red&underline
+
+MENUCOLOR=" holy water"=green
+MENUCOLOR=" blessed clear potion"=green
+MENUCOLOR=" blessed potions? called water"=green
+MENUCOLOR=" clear potions? named (holy|blessed|B)($| )"=green
+MENUCOLOR=" potions? of water named (holy|blessed|B)($| )"=green
+MENUCOLOR=" potions? called water named (holy|blessed|B)($| )"=green
+MENUCOLOR=" unholy water"=red
+MENUCOLOR=" cursed clear potion"=red
+MENUCOLOR=" cursed potions? called water"=red
+MENUCOLOR=" potions? called water named (unholy|cursed|C)($| )"=red
+
+MENUCOLOR=" (Dragonbane|Fire Brand|Frost Brand|Ogresmasher|Trollsbane|Werebane)"=lightgreen
+MENUCOLOR=" (Demonbane|Excalibur|Grayswandir|Snickersnee|Sunsword)"=lightgreen
+MENUCOLOR=" (Orb of Detection|Sceptre of Might|Magic Mirror of Merlin|Mitre of Holiness|Tsurugi of Muramasa)"=lightgreen
+MENUCOLOR=" (Cleaver|Giantslayer|Magicbane|Mjollnir|Vorpal Blade)"=lightgreen
+MENUCOLOR=" (Heart of Ahriman|Staff of Aesculapius|Eyes of the Overworld|Platinum Yendorian Express Card|Orb of Fate|Eye of the Aethiopica)"=lightgreen
+MENUCOLOR=" (Grimtooth|Orcrist|Sting|Stormbringer)"=lightgreen
+MENUCOLOR=" (Longbow of Diana|Master Key of Thievery)"=lightgreen
+
+MENUCOLOR=" (Bell of Opening|silver bell|Candelabrum of Invocation|candelabrum|Book of the Dead|papyrus spellbook)"=cyan&bold
+
+MENUCOLOR=" Amulet of Yendor named"=lightcyan&underline
+
+MENUCOLOR="piece of cloth|opera cloak|ornamental cope|tattered cape"=magenta
+MENUCOLOR="plumed helmet|etched helmet|crested helmet|visored helmet"=magenta
+MENUCOLOR="(old|padded|riding|fencing) gloves"=magenta
+MENUCOLOR="(mud|buckled|riding|snow|hiking|combat|jungle) boots"=magenta
+
+MENUCOLOR=" load(stone)?($| )"=red&underline
+
+MENUCOLOR=" bag .* tricks"=magenta&underline
+MENUCOLOR=" bag .* holding"=magenta&underline
+MENUCOLOR=" wand .*[^!]canc"=magenta&underline
+MENUCOLOR=" wand .* vanish"=magenta&underline
+
+MENUCOLOR=" \(lit\)"=white
+
+MENUCOLOR=" gold piece"=yellow
+MENUCOLOR=" valuable"=green
+MENUCOLOR=" gems? .* hard"=lightgreen
+MENUCOLOR=" ([0-9]+|an?|gems? .*) (uncursed |cursed |blessed )?(dilithium|opal|garnet|jasper|agate|jet|obsidian|jade|citrine|chrysoberyl|amber|amethyst|fluorite|turquoise)(e?s)?( stones?| gems?| crystals?)?( named .*)?$"=green
+MENUCOLOR=" ([0-9]+|an?|gems?.*) (uncursed |cursed |blessed )?(diamond|rub(y|ies)|jacinth|sapphire|black opal|emerald|topaz|aquamarine)(e?s)?( stones?| gems?)?( named .*)?$"=lightgreen
+
+MENUCOLOR="^ +[a-z -]+ +\[(Unskilled|Basic|Skilled|Expert|Master|Grand Master)\]$"=gray
+MENUCOLOR="^ *[a-z] - +[a-z -]+ +\[(Unskilled|Basic|Skilled|Expert|Master|Grand Master)\]$"=white
+MENUCOLOR="^ +\* +[a-z -]+ +\[(Unskilled|Basic|Skilled|Expert|Master|Grand Master)\]$"=white
+MENUCOLOR="^ +# +[a-z -]+ +\[(Unskilled|Basic|Skilled|Expert|Master|Grand Master)\]$"=gray
+
+MENUCOLOR=" is empty. Do what?"=gray
+MENUCOLOR="Put something into .*"=gray
+MENUCOLOR="Take something out of .*"=gray
+MENUCOLOR="Info on what a given key does."=gray
+MENUCOLOR="Full list of keyboard commands."=gray
+MENUCOLOR="altkeyhandler"=gray
+MENUCOLOR="fruit.*\["=gray
+
+#####################################################
+# Custom keybindings:                               #
+# Map #annotate to Alt+x                            #
+# Map #terrain to Alt+z                             #
+#####################################################
+
+BIND=M-x:annotate
+BIND=M-z:terrain

@@ -1,0 +1,281 @@
+From e8945e5080b635b5959e30a1246a59ac7b2409fb Mon Sep 17 00:00:00 2001
+From: Vitaly Ostrosablin <tmp6154@yandex.ru>
+Date: Tue, 13 Aug 2019 20:59:53 +0300
+Subject: [PATCH] add a new option: autosave
+
+This patch adds a new compound option: autosave (as proposed in GitHub
+issue #208).
+
+The idea behind patch is to allow artificially limiting game session
+duration, by automatically saving-and-quitting after playing for N turns
+(where N is argument of the option). This could be useful for public
+servers, where *Robin accounts are used as a form of multiplayer and
+players play for N turns, and then give control to another person.
+Another use case is to use this option to just keep yourself from
+playing too long game sessions (e.g. during coffee-break, etc.).
+
+Option is specified like this:
+
+OPTIONS=autosave:500
+
+Which would save-and-quit after playing for 500 turns.
+
+Defaults to -1 (autosave disabled). 0 is invalid value, because game
+would then quit right after starting. Any positive value is used as turn
+countdown, and when it reaches 0, game is saved and quit automatically.
+
+Signed-off-by: Vitaly Ostrosablin <tmp6154@yandex.ru>
+
+[PATCH] Make autosave option conditional under AUTOSAVE define
+
+Signed-off-by: Vitaly Ostrosablin <tmp6154@yandex.ru>
+
+autosave: make option settable in-game
+
+Signed-off-by: Vitaly Ostrosablin <tmp6154@yandex.ru>
+---
+ dat/opthelp       |  5 +++++
+ doc/Guidebook.mn  |  6 ++++++
+ doc/Guidebook.tex |  7 +++++++
+ doc/Guidebook.txt |  8 ++++++++
+ doc/fixes36.3     |  4 ++++
+ include/config.h  |  5 +++++
+ include/flag.h    |  3 +++
+ src/allmain.c     |  5 +++++
+ src/cmd.c         |  4 ++++
+ src/options.c     | 35 +++++++++++++++++++++++++++++++++++
+ src/save.c        |  4 ++++
+ 11 files changed, 86 insertions(+)
+
+diff --git a/dat/opthelp b/dat/opthelp
+index ee9092ed..562e0cf8 100644
+--- a/dat/opthelp
++++ b/dat/opthelp
+@@ -269,6 +269,11 @@ msg_window the type of message window to use:                      [single]
+            reverse     -- Same as full, but messages printed most-recent-first
+            combination -- Two single messages, then as full
+ 
++Compound option if AUTOSAVE was set at compile time:
++autosave   Save and quit the game automatically, after playing for    [off]
++           N turns (useful if you want to artificially limit the
++           game session duration).
++
+ 
+ Some sample options lists are:
+ !autopickup,!tombstone,name:Gandalf,scores:own/3 top/2 around
+diff --git a/doc/Guidebook.mn b/doc/Guidebook.mn
+index ce6d40df..ffb4c680 100644
+--- a/doc/Guidebook.mn
++++ b/doc/Guidebook.mn
+@@ -3362,6 +3362,12 @@ A value of 0 means \(lqno limit\(rq
+ the objects\(rq since the pile size will always be at least that big;
+ default value is 5.
+ Persistent.
++.lp autosave
++Save and quit the game automatically, after playing for N turns
++\(lquseful if you want to artificially limit the game session duration\(rq.
++A value of -1 (and other negative values) mean that autosave is off, while
++positive values are used for turn countdown until save. 0 is not a valid
++turn count because this would cause the game to quit as soon as it starts.
+ .lp playmode
+ Values are \(lqnormal\(rq, \(lqexplore\(rq, or \(lqdebug\(rq.
+ Allows selection of explore mode (also known as discovery mode) or debug
+diff --git a/doc/Guidebook.tex b/doc/Guidebook.tex
+index 7cb9bf0b..b012d38d 100644
+--- a/doc/Guidebook.tex
++++ b/doc/Guidebook.tex
+@@ -3701,6 +3701,13 @@ of showing a popup list of those objects.  A value of 0 means ``no limit''
+ the objects'' since the pile size will always be at least that big;
+ default value is 5.  Persistent.
+ %.lp
++\item[\ib{autosave}]
++Save and quit the game automatically, after playing for N turns
++(useful if you want to artificially limit the game session duration).
++A value of -1 (and other negative values) mean that autosave is off, while
++positive values are used for turn countdown until save. 0 is not a valid
++turn count because this would cause the game to quit as soon as it starts.
++%.lp
+ \item[\ib{playmode}]
+ Values are {\it normal\/}, {\it explore\/}, or {\it debug\/}.
+ Allows selection of explore mode (also known as discovery mode) or debug
+diff --git a/doc/Guidebook.txt b/doc/Guidebook.txt
+index c622c832..ff567194 100644
+--- a/doc/Guidebook.txt
++++ b/doc/Guidebook.txt
+@@ -3887,6 +3887,14 @@
+             of 1 effectively means "never show the objects" since the  pile
+             size  will  always  be  at  least that big; default value is 5.
+ 
++          autosave
++            Save and quit the game automatically, after playing for N turns
++            (useful if you want to artificially  limit the game session du-
++            ration).  A value of -1  (and other negative values)  mean that
++            autosave is off, while positive values are used for turn count-
++            down until save. 0 is not a valid turn count because this would
++            cause the game to quit as soon as it starts.
++
+ 
+           NetHack 3.6                                           May 7, 2019
+ 
+diff --git a/doc/fixes36.3 b/doc/fixes36.3
+index ea02fdf3..cd32a510 100644
+--- a/doc/fixes36.3
++++ b/doc/fixes36.3
+@@ -258,6 +258,10 @@ curses: give menus and text windows a minimum size of 5x25 since tiny ones can
+ curses+'perm_invent': since persistent inventory is narrow, strip off "a",
+ 	"an", or "the" prefix on inventory entries shown there so that a tiny
+ 	bit more of the interesting portion is visible
++AUTOSAVE: autosave option, allowing to automatically save-and-quit game after
++	N turns; can be used to limit game session length (e.g. for
++	multiplayer games with shared character or shared public server
++	account)
+ 
+ 
+ NetHack Community Patches (or Variation) Included
+diff --git a/include/config.h b/include/config.h
+index d12576f9..78df5d4a 100644
+--- a/include/config.h
++++ b/include/config.h
+@@ -570,6 +570,11 @@ typedef unsigned char uchar;
+ 
+ #define USE_ISAAC64 /* Use cross-plattform, bundled RNG */
+ 
++/* AUTOSAVE enables a new 'autosave' compound option, which allows
++ * to specify max number of turns to play, before doing automatic
++ * save-and-quit, defaults to off. */
++/* #define AUTOSAVE */
++
+ /* End of Section 4 */
+ 
+ #ifdef TTY_TILES_ESCCODES
+diff --git a/include/flag.h b/include/flag.h
+index 3ea3ada2..ee93f67e 100644
+--- a/include/flag.h
++++ b/include/flag.h
+@@ -276,6 +276,9 @@ struct instance_flags {
+     int menu_headings;    /* ATR for menu headings */
+     int *opt_booldup;     /* for duplication of boolean opts in config file */
+     int *opt_compdup;     /* for duplication of compound opts in conf file */
++#ifdef AUTOSAVE
++    int autosave;         /* controls, how many turns to wait before autosave */
++#endif
+ #ifdef ALTMETA
+     boolean altmeta;      /* Alt-c sends ESC c rather than M-c */
+ #endif
+diff --git a/src/allmain.c b/src/allmain.c
+index 57170b66..d3c2e697 100644
+--- a/src/allmain.c
++++ b/src/allmain.c
+@@ -186,6 +186,11 @@ boolean resuming;
+                     if (flags.time && !context.run)
+                         iflags.time_botl = TRUE;
+ 
++#ifdef AUTOSAVE
++                    if (iflags.autosave > 0)
++                        iflags.autosave--;
++#endif
++
+                     /* One possible result of prayer is healing.  Whether or
+                      * not you get healed depends on your current hit points.
+                      * If you are allowed to regenerate during the prayer,
+diff --git a/src/cmd.c b/src/cmd.c
+index 82a7819c..c2e3399a 100644
+--- a/src/cmd.c
++++ b/src/cmd.c
+@@ -4711,6 +4711,10 @@ register char *cmd;
+ #ifdef SAFERHANGUP
+     if (program_state.done_hup)
+         end_of_input();
++#endif
++#ifdef AUTOSAVE
++    if (!iflags.autosave)
++        dosave();
+ #endif
+     if (firsttime) {
+         context.nopick = 0;
+diff --git a/src/options.c b/src/options.c
+index 2f601df3..c0dc4ef5 100644
+--- a/src/options.c
++++ b/src/options.c
+@@ -273,6 +273,9 @@ static struct Comp_Opt {
+     { "align_message", "message window alignment", 20, DISP_IN_GAME }, /*WC*/
+     { "align_status", "status window alignment", 20, DISP_IN_GAME },   /*WC*/
+     { "altkeyhandler", "alternate key handler", 20, SET_IN_GAME },
++#ifdef AUTOSAVE
++    { "autosave", "quit game after N turns", 20, SET_IN_GAME },
++#endif
+ #ifdef BACKWARD_COMPAT
+     { "boulder", "deprecated (use S_boulder in sym file instead)", 1,
+       SET_IN_GAME },
+@@ -735,6 +738,9 @@ initoptions_init()
+     flags.end_around = 2;
+     flags.paranoia_bits = PARANOID_PRAY; /* old prayconfirm=TRUE */
+     flags.pile_limit = PILE_LIMIT_DFLT;  /* 5 */
++#ifdef AUTOSAVE
++    iflags.autosave = -1;                /* Disabled by default */
++#endif
+     flags.runmode = RUN_LEAP;
+     iflags.msg_history = 20;
+     /* msg_window has conflicting defaults for multi-interface binary */
+@@ -3078,6 +3084,30 @@ boolean tinitial, tfrom_file;
+         return retval;
+     }
+ 
++#ifdef AUTOSAVE
++    /* autosave: play game for N turns, then automatically save-and-quit
++       when safe opportunity presents itself (-1 = no autosave) */
++    fullname = "autosave";
++    if (match_optname(opts, fullname, 5, TRUE)) {
++        if (duplicate)
++            complain_about_duplicate(opts, 1);
++        op = string_for_opt(opts, negated);
++        if ((negated && !op) || (!negated && op))
++            iflags.autosave = negated ? -1 : atoi(op);
++        else if (negated) {
++            bad_negation(fullname, TRUE);
++            return FALSE;
++        } else /* !op */
++            iflags.autosave = -1;
++        /* sanity check - map any negative values to -1 and also map zero to
++           -1 (off) because it doesn't make sense, as it would cause the game
++           to exit as soon as game starts */
++        if (iflags.autosave <= 0)
++            iflags.autosave = -1;
++        return retval;
++    }
++#endif
++
+     /* play mode: normal, explore/discovery, or debug/wizard */
+     fullname = "playmode";
+     if (match_optname(opts, fullname, 4, TRUE)) {
+@@ -5706,6 +5736,11 @@ char *buf;
+         Sprintf(buf, "%s", ocl[0] ? ocl : "all");
+     } else if (!strcmp(optname, "pile_limit")) {
+         Sprintf(buf, "%d", flags.pile_limit);
++#ifdef AUTOSAVE
++    } else if (!strcmp(optname, "autosave")) {
++        (iflags.autosave < 0) ? Strcpy(buf, "off")
++        : Sprintf(buf, "%d", iflags.autosave);
++#endif
+     } else if (!strcmp(optname, "playmode")) {
+         Strcpy(buf, wizard ? "debug" : discover ? "explore" : "normal");
+     } else if (!strcmp(optname, "race")) {
+diff --git a/src/save.c b/src/save.c
+index e0af4b8d..4810e5ec 100644
+--- a/src/save.c
++++ b/src/save.c
+@@ -80,7 +80,11 @@ dosave()
+     if (iflags.debug_fuzzer)
+         return 0;
+     clear_nhwindow(WIN_MESSAGE);
++#ifdef AUTOSAVE
++    if (iflags.autosave && yn("Really save?") == 'n') {
++#else
+     if (yn("Really save?") == 'n') {
++#endif
+         clear_nhwindow(WIN_MESSAGE);
+         if (multi > 0)
+             nomul(0);
+-- 
+2.21.0
+
