@@ -48,7 +48,7 @@ First volume is used to store NetHack's playground (which contains save files, e
 
 Then, to run play the game, run the following command (be sure to put chosen username instead of placeholder).
 
-`docker run --name nethack --rm -it -v=playground:/home/<unixusername>/nethack -v=ttyrec:/home/<unixusername>/ttyrec -v=dumps:/home/<unixusername>/dumps nethack`
+    docker run --name nethack --rm -it -v=playground:/home/<unixusername>/nethack -v=ttyrec:/home/<unixusername>/ttyrec -v=dumps:/home/<unixusername>/dumps nethack
 
 This would run a containerized NetHack. Container is autoremoved when it's stops, but data will be saved and persisted on the volumes. To continue the game, just run the above command once again.
 
