@@ -14,4 +14,5 @@ else
     mv ./ttyrec/* ./dumps/$GAMENAME/ttyrec/
     XZ_OPT=-9 tar -C ./dumps -cJf ./dumps/$GAMENAME.tar.xz $GAMENAME
     rm -rf ./dumps/$GAMENAME
+    echo "Done"
 fi
