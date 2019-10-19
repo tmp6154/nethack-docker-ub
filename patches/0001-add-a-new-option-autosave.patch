@@ -1,7 +1,7 @@
-From e8945e5080b635b5959e30a1246a59ac7b2409fb Mon Sep 17 00:00:00 2001
+From 124e3911494ac7bedcd2b5df35e447764f0b944a Mon Sep 17 00:00:00 2001
 From: Vitaly Ostrosablin <tmp6154@yandex.ru>
 Date: Tue, 13 Aug 2019 20:59:53 +0300
-Subject: [PATCH] add a new option: autosave
+Subject: [PATCH 1/3] add a new option: autosave
 
 This patch adds a new compound option: autosave (as proposed in GitHub
 issue #208).
@@ -25,46 +25,35 @@ would then quit right after starting. Any positive value is used as turn
 countdown, and when it reaches 0, game is saved and quit automatically.
 
 Signed-off-by: Vitaly Ostrosablin <tmp6154@yandex.ru>
-
-[PATCH] Make autosave option conditional under AUTOSAVE define
-
-Signed-off-by: Vitaly Ostrosablin <tmp6154@yandex.ru>
-
-autosave: make option settable in-game
-
-Signed-off-by: Vitaly Ostrosablin <tmp6154@yandex.ru>
 ---
- dat/opthelp       |  5 +++++
+ dat/opthelp       |  3 +++
  doc/Guidebook.mn  |  6 ++++++
  doc/Guidebook.tex |  7 +++++++
  doc/Guidebook.txt |  8 ++++++++
- doc/fixes36.3     |  4 ++++
- include/config.h  |  5 +++++
- include/flag.h    |  3 +++
- src/allmain.c     |  5 +++++
- src/cmd.c         |  4 ++++
- src/options.c     | 35 +++++++++++++++++++++++++++++++++++
- src/save.c        |  4 ++++
- 11 files changed, 86 insertions(+)
+ doc/fixes36.3     |  1 +
+ include/flag.h    |  1 +
+ src/allmain.c     |  2 ++
+ src/cmd.c         |  2 ++
+ src/options.c     | 30 ++++++++++++++++++++++++++++++
+ src/save.c        |  2 +-
+ 10 files changed, 61 insertions(+), 1 deletion(-)
 
 diff --git a/dat/opthelp b/dat/opthelp
-index ee9092ed..562e0cf8 100644
+index ee9092ede..0091d5bbd 100644
 --- a/dat/opthelp
 +++ b/dat/opthelp
-@@ -269,6 +269,11 @@ msg_window the type of message window to use:                      [single]
-            reverse     -- Same as full, but messages printed most-recent-first
-            combination -- Two single messages, then as full
- 
-+Compound option if AUTOSAVE was set at compile time:
+@@ -204,6 +204,9 @@ Compound options which may be set only on startup are:
+ align      Your starting alignment (lawful, neutral, chaotic,      [random]
+            or random).  Many roles restrict the choice to a subset.
+            You may specify just the first letter.
 +autosave   Save and quit the game automatically, after playing for    [off]
 +           N turns (useful if you want to artificially limit the
 +           game session duration).
-+
- 
- Some sample options lists are:
- !autopickup,!tombstone,name:Gandalf,scores:own/3 top/2 around
+ catname    the name of your first cat                                [none]
+ dogname    the name of your first dog                                [none]
+            Several roles who start with a dog have one whose name is
 diff --git a/doc/Guidebook.mn b/doc/Guidebook.mn
-index ce6d40df..ffb4c680 100644
+index 9fb47b12e..0fc115ad1 100644
 --- a/doc/Guidebook.mn
 +++ b/doc/Guidebook.mn
 @@ -3362,6 +3362,12 @@ A value of 0 means \(lqno limit\(rq
@@ -81,10 +70,10 @@ index ce6d40df..ffb4c680 100644
  Values are \(lqnormal\(rq, \(lqexplore\(rq, or \(lqdebug\(rq.
  Allows selection of explore mode (also known as discovery mode) or debug
 diff --git a/doc/Guidebook.tex b/doc/Guidebook.tex
-index 7cb9bf0b..b012d38d 100644
+index ab337531f..58fd53876 100644
 --- a/doc/Guidebook.tex
 +++ b/doc/Guidebook.tex
-@@ -3701,6 +3701,13 @@ of showing a popup list of those objects.  A value of 0 means ``no limit''
+@@ -3701,6 +3701,13 @@ \subsection*{Customization options}
  the objects'' since the pile size will always be at least that big;
  default value is 5.  Persistent.
  %.lp
@@ -99,12 +88,12 @@ index 7cb9bf0b..b012d38d 100644
  Values are {\it normal\/}, {\it explore\/}, or {\it debug\/}.
  Allows selection of explore mode (also known as discovery mode) or debug
 diff --git a/doc/Guidebook.txt b/doc/Guidebook.txt
-index c622c832..ff567194 100644
+index c1b1dc6c1..67c742f75 100644
 --- a/doc/Guidebook.txt
 +++ b/doc/Guidebook.txt
 @@ -3887,6 +3887,14 @@
-             of 1 effectively means "never show the objects" since the  pile
-             size  will  always  be  at  least that big; default value is 5.
+             of  1 effectively means "never show the objects" since the pile
+             size will always be at least that  big;  default  value  is  5.
  
 +          autosave
 +            Save and quit the game automatically, after playing for N turns
@@ -115,16 +104,194 @@ index c622c832..ff567194 100644
 +            cause the game to quit as soon as it starts.
 +
  
-           NetHack 3.6                                           May 7, 2019
+           NetHack 3.6                                       October 1, 2019
  
 diff --git a/doc/fixes36.3 b/doc/fixes36.3
-index ea02fdf3..cd32a510 100644
+index b787a3c1e..9b3347646 100644
 --- a/doc/fixes36.3
 +++ b/doc/fixes36.3
-@@ -258,6 +258,10 @@ curses: give menus and text windows a minimum size of 5x25 since tiny ones can
- curses+'perm_invent': since persistent inventory is narrow, strip off "a",
- 	"an", or "the" prefix on inventory entries shown there so that a tiny
- 	bit more of the interesting portion is visible
+@@ -367,6 +367,7 @@ curses+'perm_invent': since persistent inventory is narrow, strip off "a",
+ curses+'curses': change the curses map display to use new symbol set 'curses'
+ 	instead of hard-coded values; it attempts to show IBMgraphics-style
+ 	map using DECgraphics characters; DECgraphics can also be used as-is
++autosave option, allowing to automatically save-and-quit game after N turns
+ 
+ 
+ NetHack Community Patches (or Variation) Included
+diff --git a/include/flag.h b/include/flag.h
+index 8fe94339b..7182e07b3 100644
+--- a/include/flag.h
++++ b/include/flag.h
+@@ -276,6 +276,7 @@ struct instance_flags {
+     int menu_headings;    /* ATR for menu headings */
+     int *opt_booldup;     /* for duplication of boolean opts in config file */
+     int *opt_compdup;     /* for duplication of compound opts in conf file */
++    int autosave;         /* controls, how many turns to wait before autosave */
+ #ifdef ALTMETA
+     boolean altmeta;      /* Alt-c sends ESC c rather than M-c */
+ #endif
+diff --git a/src/allmain.c b/src/allmain.c
+index 57170b66c..077fe1107 100644
+--- a/src/allmain.c
++++ b/src/allmain.c
+@@ -185,6 +185,8 @@ boolean resuming;
+                         u.ublesscnt--;
+                     if (flags.time && !context.run)
+                         iflags.time_botl = TRUE;
++                    if (iflags.autosave > 0)
++                        iflags.autosave--;
+ 
+                     /* One possible result of prayer is healing.  Whether or
+                      * not you get healed depends on your current hit points.
+diff --git a/src/cmd.c b/src/cmd.c
+index e6c4049b1..7d47dfa88 100644
+--- a/src/cmd.c
++++ b/src/cmd.c
+@@ -4711,6 +4711,8 @@ register char *cmd;
+     if (program_state.done_hup)
+         end_of_input();
+ #endif
++    if (!iflags.autosave)
++        dosave();
+     if (firsttime) {
+         context.nopick = 0;
+         cmd = parse();
+diff --git a/src/options.c b/src/options.c
+index f4975688a..72dcb1524 100644
+--- a/src/options.c
++++ b/src/options.c
+@@ -41,6 +41,7 @@ enum window_option_types {
+ };
+ 
+ #define PILE_LIMIT_DFLT 5
++#define AUTOSAVE_DFLT -1
+ 
+ /*
+  *  NOTE:  If you add (or delete) an option, please update the short
+@@ -273,6 +274,7 @@ static struct Comp_Opt {
+     { "align_message", "message window alignment", 20, DISP_IN_GAME }, /*WC*/
+     { "align_status", "status window alignment", 20, DISP_IN_GAME },   /*WC*/
+     { "altkeyhandler", "alternate key handler", 20, SET_IN_GAME },
++    { "autosave", "quit game after N turns", 20, DISP_IN_GAME },   /*WC*/
+ #ifdef BACKWARD_COMPAT
+     { "boulder", "deprecated (use S_boulder in sym file instead)", 1,
+       SET_IN_GAME },
+@@ -734,6 +736,7 @@ initoptions_init()
+     flags.end_around = 2;
+     flags.paranoia_bits = PARANOID_PRAY; /* old prayconfirm=TRUE */
+     flags.pile_limit = PILE_LIMIT_DFLT;  /* 5 */
++    iflags.autosave = -1;                /* Disabled by default */
+     flags.runmode = RUN_LEAP;
+     iflags.msg_history = 20;
+     /* msg_window has conflicting defaults for multi-interface binary */
+@@ -3076,6 +3079,30 @@ boolean tinitial, tfrom_file;
+         return retval;
+     }
+ 
++    /* autosave: play game for N turns, then automatically save-and-quit
++       when safe opportunity presents itself (-1 = no autosave) */
++    fullname = "autosave";
++    if (match_optname(opts, fullname, 5, TRUE)) {
++        if (duplicate)
++            complain_about_duplicate(opts, 1);
++        op = string_for_opt(opts, negated);
++        if ((negated && !op) || (!negated && op))
++            iflags.autosave = negated ? -1 : atoi(op);
++        else if (negated) {
++            bad_negation(fullname, TRUE);
++            return FALSE;
++        } else /* !op */
++            iflags.autosave = AUTOSAVE_DFLT;
++        /* sanity check */
++        if (iflags.autosave < -1)
++            iflags.autosave = AUTOSAVE_DFLT;
++        else if (iflags.autosave == 0) {
++            config_error_add("Autosave should be non-zero, assuming off");
++            iflags.autosave = AUTOSAVE_DFLT;
++        }
++        return retval;
++    }
++
+     /* play mode: normal, explore/discovery, or debug/wizard */
+     fullname = "playmode";
+     if (match_optname(opts, fullname, 4, TRUE)) {
+@@ -5802,6 +5829,9 @@ char *buf;
+         Sprintf(buf, "%s", ocl[0] ? ocl : "all");
+     } else if (!strcmp(optname, "pile_limit")) {
+         Sprintf(buf, "%d", flags.pile_limit);
++    } else if (!strcmp(optname, "autosave")) {
++        (iflags.autosave < 0) ? Strcpy(buf, "off")
++        : Sprintf(buf, "%d", iflags.autosave);
+     } else if (!strcmp(optname, "playmode")) {
+         Strcpy(buf, wizard ? "debug" : discover ? "explore" : "normal");
+     } else if (!strcmp(optname, "race")) {
+diff --git a/src/save.c b/src/save.c
+index e0af4b8d2..eeaf750dc 100644
+--- a/src/save.c
++++ b/src/save.c
+@@ -80,7 +80,7 @@ dosave()
+     if (iflags.debug_fuzzer)
+         return 0;
+     clear_nhwindow(WIN_MESSAGE);
+-    if (yn("Really save?") == 'n') {
++    if (iflags.autosave && yn("Really save?") == 'n') {
+         clear_nhwindow(WIN_MESSAGE);
+         if (multi > 0)
+             nomul(0);
+
+From 2721c7d724b991ebc64b3eea29fc63aa61d77474 Mon Sep 17 00:00:00 2001
+From: Vitaly Ostrosablin <tmp6154@yandex.ru>
+Date: Wed, 4 Sep 2019 12:47:14 +0300
+Subject: [PATCH 2/3] [PATCH] Make autosave option conditional under AUTOSAVE
+ define
+
+Signed-off-by: Vitaly Ostrosablin <tmp6154@yandex.ru>
+---
+ dat/opthelp      |  8 +++++---
+ doc/fixes36.3    |  5 ++++-
+ include/config.h |  5 +++++
+ include/flag.h   |  2 ++
+ src/allmain.c    |  3 +++
+ src/cmd.c        |  2 ++
+ src/options.c    | 11 +++++++++++
+ src/save.c       |  4 ++++
+ 8 files changed, 36 insertions(+), 4 deletions(-)
+
+diff --git a/dat/opthelp b/dat/opthelp
+index 0091d5bbd..562e0cf8e 100644
+--- a/dat/opthelp
++++ b/dat/opthelp
+@@ -204,9 +204,6 @@ Compound options which may be set only on startup are:
+ align      Your starting alignment (lawful, neutral, chaotic,      [random]
+            or random).  Many roles restrict the choice to a subset.
+            You may specify just the first letter.
+-autosave   Save and quit the game automatically, after playing for    [off]
+-           N turns (useful if you want to artificially limit the
+-           game session duration).
+ catname    the name of your first cat                                [none]
+ dogname    the name of your first dog                                [none]
+            Several roles who start with a dog have one whose name is
+@@ -272,6 +269,11 @@ msg_window the type of message window to use:                      [single]
+            reverse     -- Same as full, but messages printed most-recent-first
+            combination -- Two single messages, then as full
+ 
++Compound option if AUTOSAVE was set at compile time:
++autosave   Save and quit the game automatically, after playing for    [off]
++           N turns (useful if you want to artificially limit the
++           game session duration).
++
+ 
+ Some sample options lists are:
+ !autopickup,!tombstone,name:Gandalf,scores:own/3 top/2 around
+diff --git a/doc/fixes36.3 b/doc/fixes36.3
+index 9b3347646..fdbc6ec12 100644
+--- a/doc/fixes36.3
++++ b/doc/fixes36.3
+@@ -367,7 +367,10 @@ curses+'perm_invent': since persistent inventory is narrow, strip off "a",
+ curses+'curses': change the curses map display to use new symbol set 'curses'
+ 	instead of hard-coded values; it attempts to show IBMgraphics-style
+ 	map using DECgraphics characters; DECgraphics can also be used as-is
+-autosave option, allowing to automatically save-and-quit game after N turns
 +AUTOSAVE: autosave option, allowing to automatically save-and-quit game after
 +	N turns; can be used to limit game session length (e.g. for
 +	multiplayer games with shared character or shared public server
@@ -133,7 +300,7 @@ index ea02fdf3..cd32a510 100644
  
  NetHack Community Patches (or Variation) Included
 diff --git a/include/config.h b/include/config.h
-index d12576f9..78df5d4a 100644
+index d12576f9d..78df5d4a3 100644
 --- a/include/config.h
 +++ b/include/config.h
 @@ -570,6 +570,11 @@ typedef unsigned char uchar;
@@ -149,119 +316,115 @@ index d12576f9..78df5d4a 100644
  
  #ifdef TTY_TILES_ESCCODES
 diff --git a/include/flag.h b/include/flag.h
-index 3ea3ada2..ee93f67e 100644
+index 7182e07b3..ee40a8061 100644
 --- a/include/flag.h
 +++ b/include/flag.h
-@@ -276,6 +276,9 @@ struct instance_flags {
+@@ -276,7 +276,9 @@ struct instance_flags {
      int menu_headings;    /* ATR for menu headings */
      int *opt_booldup;     /* for duplication of boolean opts in config file */
      int *opt_compdup;     /* for duplication of compound opts in conf file */
 +#ifdef AUTOSAVE
-+    int autosave;         /* controls, how many turns to wait before autosave */
+     int autosave;         /* controls, how many turns to wait before autosave */
 +#endif
  #ifdef ALTMETA
      boolean altmeta;      /* Alt-c sends ESC c rather than M-c */
  #endif
 diff --git a/src/allmain.c b/src/allmain.c
-index 57170b66..d3c2e697 100644
+index 077fe1107..d3c2e6972 100644
 --- a/src/allmain.c
 +++ b/src/allmain.c
-@@ -186,6 +186,11 @@ boolean resuming;
+@@ -185,8 +185,11 @@ boolean resuming;
+                         u.ublesscnt--;
                      if (flags.time && !context.run)
                          iflags.time_botl = TRUE;
- 
-+#ifdef AUTOSAVE
-+                    if (iflags.autosave > 0)
-+                        iflags.autosave--;
-+#endif
 +
++#ifdef AUTOSAVE
+                     if (iflags.autosave > 0)
+                         iflags.autosave--;
++#endif
+ 
                      /* One possible result of prayer is healing.  Whether or
                       * not you get healed depends on your current hit points.
-                      * If you are allowed to regenerate during the prayer,
 diff --git a/src/cmd.c b/src/cmd.c
-index 82a7819c..c2e3399a 100644
+index 7d47dfa88..983812a25 100644
 --- a/src/cmd.c
 +++ b/src/cmd.c
-@@ -4711,6 +4711,10 @@ register char *cmd;
- #ifdef SAFERHANGUP
+@@ -4711,8 +4711,10 @@ register char *cmd;
      if (program_state.done_hup)
          end_of_input();
-+#endif
-+#ifdef AUTOSAVE
-+    if (!iflags.autosave)
-+        dosave();
  #endif
++#ifdef AUTOSAVE
+     if (!iflags.autosave)
+         dosave();
++#endif
      if (firsttime) {
          context.nopick = 0;
+         cmd = parse();
 diff --git a/src/options.c b/src/options.c
-index 2f601df3..c0dc4ef5 100644
+index 72dcb1524..4b3b02870 100644
 --- a/src/options.c
 +++ b/src/options.c
-@@ -273,6 +273,9 @@ static struct Comp_Opt {
+@@ -41,7 +41,10 @@ enum window_option_types {
+ };
+ 
+ #define PILE_LIMIT_DFLT 5
++
++#ifdef AUTOSAVE
+ #define AUTOSAVE_DFLT -1
++#endif
+ 
+ /*
+  *  NOTE:  If you add (or delete) an option, please update the short
+@@ -274,7 +277,9 @@ static struct Comp_Opt {
      { "align_message", "message window alignment", 20, DISP_IN_GAME }, /*WC*/
      { "align_status", "status window alignment", 20, DISP_IN_GAME },   /*WC*/
      { "altkeyhandler", "alternate key handler", 20, SET_IN_GAME },
 +#ifdef AUTOSAVE
-+    { "autosave", "quit game after N turns", 20, SET_IN_GAME },
+     { "autosave", "quit game after N turns", 20, DISP_IN_GAME },   /*WC*/
 +#endif
  #ifdef BACKWARD_COMPAT
      { "boulder", "deprecated (use S_boulder in sym file instead)", 1,
        SET_IN_GAME },
-@@ -735,6 +738,9 @@ initoptions_init()
+@@ -736,7 +741,9 @@ initoptions_init()
      flags.end_around = 2;
      flags.paranoia_bits = PARANOID_PRAY; /* old prayconfirm=TRUE */
      flags.pile_limit = PILE_LIMIT_DFLT;  /* 5 */
 +#ifdef AUTOSAVE
-+    iflags.autosave = -1;                /* Disabled by default */
+     iflags.autosave = -1;                /* Disabled by default */
 +#endif
      flags.runmode = RUN_LEAP;
      iflags.msg_history = 20;
      /* msg_window has conflicting defaults for multi-interface binary */
-@@ -3078,6 +3084,30 @@ boolean tinitial, tfrom_file;
+@@ -3079,6 +3086,7 @@ boolean tinitial, tfrom_file;
          return retval;
      }
  
 +#ifdef AUTOSAVE
-+    /* autosave: play game for N turns, then automatically save-and-quit
-+       when safe opportunity presents itself (-1 = no autosave) */
-+    fullname = "autosave";
-+    if (match_optname(opts, fullname, 5, TRUE)) {
-+        if (duplicate)
-+            complain_about_duplicate(opts, 1);
-+        op = string_for_opt(opts, negated);
-+        if ((negated && !op) || (!negated && op))
-+            iflags.autosave = negated ? -1 : atoi(op);
-+        else if (negated) {
-+            bad_negation(fullname, TRUE);
-+            return FALSE;
-+        } else /* !op */
-+            iflags.autosave = -1;
-+        /* sanity check - map any negative values to -1 and also map zero to
-+           -1 (off) because it doesn't make sense, as it would cause the game
-+           to exit as soon as game starts */
-+        if (iflags.autosave <= 0)
-+            iflags.autosave = -1;
-+        return retval;
-+    }
+     /* autosave: play game for N turns, then automatically save-and-quit
+        when safe opportunity presents itself (-1 = no autosave) */
+     fullname = "autosave";
+@@ -3102,6 +3110,7 @@ boolean tinitial, tfrom_file;
+         }
+         return retval;
+     }
 +#endif
-+
+ 
      /* play mode: normal, explore/discovery, or debug/wizard */
      fullname = "playmode";
-     if (match_optname(opts, fullname, 4, TRUE)) {
-@@ -5706,6 +5736,11 @@ char *buf;
+@@ -5829,9 +5838,11 @@ char *buf;
          Sprintf(buf, "%s", ocl[0] ? ocl : "all");
      } else if (!strcmp(optname, "pile_limit")) {
          Sprintf(buf, "%d", flags.pile_limit);
 +#ifdef AUTOSAVE
-+    } else if (!strcmp(optname, "autosave")) {
-+        (iflags.autosave < 0) ? Strcpy(buf, "off")
-+        : Sprintf(buf, "%d", iflags.autosave);
+     } else if (!strcmp(optname, "autosave")) {
+         (iflags.autosave < 0) ? Strcpy(buf, "off")
+         : Sprintf(buf, "%d", iflags.autosave);
 +#endif
      } else if (!strcmp(optname, "playmode")) {
          Strcpy(buf, wizard ? "debug" : discover ? "explore" : "normal");
      } else if (!strcmp(optname, "race")) {
 diff --git a/src/save.c b/src/save.c
-index e0af4b8d..4810e5ec 100644
+index eeaf750dc..4810e5ec9 100644
 --- a/src/save.c
 +++ b/src/save.c
 @@ -80,7 +80,11 @@ dosave()
@@ -269,13 +432,66 @@ index e0af4b8d..4810e5ec 100644
          return 0;
      clear_nhwindow(WIN_MESSAGE);
 +#ifdef AUTOSAVE
-+    if (iflags.autosave && yn("Really save?") == 'n') {
+     if (iflags.autosave && yn("Really save?") == 'n') {
 +#else
-     if (yn("Really save?") == 'n') {
++    if (yn("Really save?") == 'n') {
 +#endif
          clear_nhwindow(WIN_MESSAGE);
          if (multi > 0)
              nomul(0);
--- 
-2.21.0
 
+From e224f2704136b5df176942d6fa5db647e133c338 Mon Sep 17 00:00:00 2001
+From: Vitaly Ostrosablin <tmp6154@yandex.ru>
+Date: Fri, 6 Sep 2019 12:42:01 +0300
+Subject: [PATCH 3/3] autosave: make option settable in-game
+
+Signed-off-by: Vitaly Ostrosablin <tmp6154@yandex.ru>
+---
+ src/options.c | 20 +++++++-------------
+ 1 file changed, 7 insertions(+), 13 deletions(-)
+
+diff --git a/src/options.c b/src/options.c
+index 4b3b02870..c082cc83c 100644
+--- a/src/options.c
++++ b/src/options.c
+@@ -42,10 +42,6 @@ enum window_option_types {
+ 
+ #define PILE_LIMIT_DFLT 5
+ 
+-#ifdef AUTOSAVE
+-#define AUTOSAVE_DFLT -1
+-#endif
+-
+ /*
+  *  NOTE:  If you add (or delete) an option, please update the short
+  *  options help (option_help()), the long options help (dat/opthelp),
+@@ -278,7 +274,7 @@ static struct Comp_Opt {
+     { "align_status", "status window alignment", 20, DISP_IN_GAME },   /*WC*/
+     { "altkeyhandler", "alternate key handler", 20, SET_IN_GAME },
+ #ifdef AUTOSAVE
+-    { "autosave", "quit game after N turns", 20, DISP_IN_GAME },   /*WC*/
++    { "autosave", "quit game after N turns", 20, SET_IN_GAME },
+ #endif
+ #ifdef BACKWARD_COMPAT
+     { "boulder", "deprecated (use S_boulder in sym file instead)", 1,
+@@ -3100,14 +3096,12 @@ boolean tinitial, tfrom_file;
+             bad_negation(fullname, TRUE);
+             return FALSE;
+         } else /* !op */
+-            iflags.autosave = AUTOSAVE_DFLT;
+-        /* sanity check */
+-        if (iflags.autosave < -1)
+-            iflags.autosave = AUTOSAVE_DFLT;
+-        else if (iflags.autosave == 0) {
+-            config_error_add("Autosave should be non-zero, assuming off");
+-            iflags.autosave = AUTOSAVE_DFLT;
+-        }
++            iflags.autosave = -1;
++        /* sanity check - map any negative values to -1 and also map zero to
++           -1 (off) because it doesn't make sense, as it would cause the game
++           to exit as soon as game starts */
++        if (iflags.autosave <= 0)
++            iflags.autosave = -1;
+         return retval;
+     }
+ #endif
