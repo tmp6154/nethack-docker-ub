@@ -1,4 +1,4 @@
-From 080df569a917f58490c4953be810b4bb554b99d1 Mon Sep 17 00:00:00 2001
+From 46e2bb54d9cb5d57a5b6d2ec3423aa66b8a07bc3 Mon Sep 17 00:00:00 2001
 From: Vitaly Ostrosablin <tmp6154@yandex.ru>
 Date: Tue, 13 Aug 2019 20:59:53 +0300
 Subject: [PATCH] add a new option: autosave
@@ -64,10 +64,10 @@ index ee9092ed..562e0cf8 100644
  Some sample options lists are:
  !autopickup,!tombstone,name:Gandalf,scores:own/3 top/2 around
 diff --git a/doc/Guidebook.mn b/doc/Guidebook.mn
-index a9d82872..13a8f841 100644
+index f3a8a981..e634c1b7 100644
 --- a/doc/Guidebook.mn
 +++ b/doc/Guidebook.mn
-@@ -3372,6 +3372,12 @@ A value of 0 means \(lqno limit\(rq
+@@ -3395,6 +3395,12 @@ A value of 0 means \(lqno limit\(rq
  the objects\(rq since the pile size will always be at least that big;
  default value is 5.
  Persistent.
@@ -81,10 +81,10 @@ index a9d82872..13a8f841 100644
  Values are \(lqnormal\(rq, \(lqexplore\(rq, or \(lqdebug\(rq.
  Allows selection of explore mode (also known as discovery mode) or debug
 diff --git a/doc/Guidebook.tex b/doc/Guidebook.tex
-index 92b4d742..0c6a71a2 100644
+index 290373da..c448320a 100644
 --- a/doc/Guidebook.tex
 +++ b/doc/Guidebook.tex
-@@ -3726,6 +3726,13 @@ of showing a popup list of those objects.  A value of 0 means ``no limit''
+@@ -3735,6 +3735,13 @@ of showing a popup list of those objects.  A value of 0 means ``no limit''
  the objects'' since the pile size will always be at least that big;
  default value is 5.  Persistent.
  %.lp
@@ -99,12 +99,12 @@ index 92b4d742..0c6a71a2 100644
  Values are {\it normal\/}, {\it explore\/}, or {\it debug\/}.
  Allows selection of explore mode (also known as discovery mode) or debug
 diff --git a/doc/Guidebook.txt b/doc/Guidebook.txt
-index e5c6deb2..f03f7ee1 100644
+index 595c02aa..12ce1e14 100644
 --- a/doc/Guidebook.txt
 +++ b/doc/Guidebook.txt
 @@ -3887,6 +3887,14 @@
-             of 1 effectively means "never show the objects" since the  pile
-             size  will  always  be  at  least that big; default value is 5.
+             at  which the message "there are few/several/many objects here"
+             is given instead of showing a popup list of those  objects.   A
  
 +          autosave
 +            Save and quit the game automatically, after playing for N turns
@@ -115,16 +115,16 @@ index e5c6deb2..f03f7ee1 100644
 +            cause the game to quit as soon as it starts.
 +
  
-           NetHack 3.6                                      October 27, 2019
+           NetHack 3.6                                      November 2, 2019
  
 diff --git a/doc/fixes36.3 b/doc/fixes36.3
-index c95a46c4..0563b042 100644
+index 85dbbdf7..5551f8c2 100644
 --- a/doc/fixes36.3
 +++ b/doc/fixes36.3
-@@ -384,6 +384,10 @@ curses+'curses': change the curses map display to use new symbol set 'curses'
- fulfill a request from a blind player to have a unique overriding SYMBOL for pets
- 	 and for the player
+@@ -410,6 +410,10 @@ fulfill a request from a blind player to have a unique overriding SYMBOL for
  ROGUESYMBOLS can be overridden in config files like SYMBOLS can
+ in symset:DECgraphics, set S_altar to 'pi' (was default '_'), S_bars to
+ 	not-equals sign (was 'pi')
 +AUTOSAVE: autosave option, allowing to automatically save-and-quit game after
 +	N turns; can be used to limit game session length (e.g. for
 +	multiplayer games with shared character or shared public server
@@ -149,10 +149,10 @@ index d12576f9..78df5d4a 100644
  
  #ifdef TTY_TILES_ESCCODES
 diff --git a/include/flag.h b/include/flag.h
-index 8fe94339..ee40a806 100644
+index 5370faab..a841ea7f 100644
 --- a/include/flag.h
 +++ b/include/flag.h
-@@ -276,6 +276,9 @@ struct instance_flags {
+@@ -278,6 +278,9 @@ struct instance_flags {
      int menu_headings;    /* ATR for menu headings */
      int *opt_booldup;     /* for duplication of boolean opts in config file */
      int *opt_compdup;     /* for duplication of compound opts in conf file */
@@ -163,7 +163,7 @@ index 8fe94339..ee40a806 100644
      boolean altmeta;      /* Alt-c sends ESC c rather than M-c */
  #endif
 diff --git a/src/allmain.c b/src/allmain.c
-index 57170b66..d3c2e697 100644
+index 5111c69a..4d7bd985 100644
 --- a/src/allmain.c
 +++ b/src/allmain.c
 @@ -186,6 +186,11 @@ boolean resuming;
@@ -179,10 +179,10 @@ index 57170b66..d3c2e697 100644
                       * not you get healed depends on your current hit points.
                       * If you are allowed to regenerate during the prayer,
 diff --git a/src/cmd.c b/src/cmd.c
-index 0d65bb02..3f9db45d 100644
+index dca4c54e..839940b5 100644
 --- a/src/cmd.c
 +++ b/src/cmd.c
-@@ -4711,6 +4711,10 @@ register char *cmd;
+@@ -4718,6 +4718,10 @@ register char *cmd;
  #ifdef SAFERHANGUP
      if (program_state.done_hup)
          end_of_input();
@@ -194,7 +194,7 @@ index 0d65bb02..3f9db45d 100644
      if (firsttime) {
          context.nopick = 0;
 diff --git a/src/options.c b/src/options.c
-index 28de184c..7d6b03af 100644
+index c1c95c69..0b904814 100644
 --- a/src/options.c
 +++ b/src/options.c
 @@ -273,6 +273,9 @@ static struct Comp_Opt {
@@ -248,7 +248,7 @@ index 28de184c..7d6b03af 100644
      /* play mode: normal, explore/discovery, or debug/wizard */
      fullname = "playmode";
      if (match_optname(opts, fullname, 4, TRUE)) {
-@@ -5816,6 +5846,11 @@ char *buf;
+@@ -5785,6 +5815,11 @@ char *buf;
          Sprintf(buf, "%s", ocl[0] ? ocl : "all");
      } else if (!strcmp(optname, "pile_limit")) {
          Sprintf(buf, "%d", flags.pile_limit);
