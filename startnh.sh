@@ -1,7 +1,10 @@
 #!/bin/bash
 
-TIMESTAMP=`date +%Y-%m-%d.%H:%M:%S`
+TIMESTAMP=$(date +%Y-%m-%d.%H:%M:%S)
 LANG=en-US.UTF-8
+
+[ -z "$TERM_WIDTH" ] && TERM_WIDTH=$(tput cols)
+[ -z "$TERM_HEIGHT" ] && TERM_HEIGHT=$(tput lines)
 
 if [ -z "$NO_FILTERM" ]
 then
@@ -22,5 +25,6 @@ touch ./nethack/xlogfile
 reset
 stty sane
 stty -icrnl
-ttyrec ~/ttyrec/$(whoami)-$TIMESTAMP.ttyrec -e \
+stty cols $TERM_WIDTH rows $TERM_HEIGHT
+ttyrec ~/ttyrec/$(whoami)-$TIMESTAMP.${TERM_WIDTH}x${TERM_HEIGHT}.ttyrec -e \
     "$LAUNCH_CMD"; ~/archivegame.sh; exit
