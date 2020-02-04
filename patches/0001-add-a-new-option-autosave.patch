@@ -1,4 +1,4 @@
-From 46e2bb54d9cb5d57a5b6d2ec3423aa66b8a07bc3 Mon Sep 17 00:00:00 2001
+From b28e05c81bcaded3af93cd1d495212a4168045a3 Mon Sep 17 00:00:00 2001
 From: Vitaly Ostrosablin <tmp6154@yandex.ru>
 Date: Tue, 13 Aug 2019 20:59:53 +0300
 Subject: [PATCH] add a new option: autosave
@@ -38,20 +38,20 @@ Signed-off-by: Vitaly Ostrosablin <tmp6154@yandex.ru>
  doc/Guidebook.mn  |  6 ++++++
  doc/Guidebook.tex |  7 +++++++
  doc/Guidebook.txt |  8 ++++++++
- doc/fixes36.3     |  4 ++++
+ doc/fixes37.0     |  1 +
  include/config.h  |  5 +++++
  include/flag.h    |  3 +++
  src/allmain.c     |  5 +++++
  src/cmd.c         |  4 ++++
  src/options.c     | 35 +++++++++++++++++++++++++++++++++++
  src/save.c        |  4 ++++
- 11 files changed, 86 insertions(+)
+ 11 files changed, 83 insertions(+)
 
 diff --git a/dat/opthelp b/dat/opthelp
-index ee9092ed..562e0cf8 100644
+index 1048a19f9..89041c0ff 100644
 --- a/dat/opthelp
 +++ b/dat/opthelp
-@@ -269,6 +269,11 @@ msg_window the type of message window to use:                      [single]
+@@ -279,6 +279,11 @@ msg_window the type of message window to use:                      [single]
             reverse     -- Same as full, but messages printed most-recent-first
             combination -- Two single messages, then as full
  
@@ -64,10 +64,10 @@ index ee9092ed..562e0cf8 100644
  Some sample options lists are:
  !autopickup,!tombstone,name:Gandalf,scores:own/3 top/2 around
 diff --git a/doc/Guidebook.mn b/doc/Guidebook.mn
-index f3a8a981..e634c1b7 100644
+index e189cd8a9..6648e28db 100644
 --- a/doc/Guidebook.mn
 +++ b/doc/Guidebook.mn
-@@ -3395,6 +3395,12 @@ A value of 0 means \(lqno limit\(rq
+@@ -3549,6 +3549,12 @@ A value of 0 means \(lqno limit\(rq
  the objects\(rq since the pile size will always be at least that big;
  default value is 5.
  Persistent.
@@ -81,10 +81,10 @@ index f3a8a981..e634c1b7 100644
  Values are \(lqnormal\(rq, \(lqexplore\(rq, or \(lqdebug\(rq.
  Allows selection of explore mode (also known as discovery mode) or debug
 diff --git a/doc/Guidebook.tex b/doc/Guidebook.tex
-index 290373da..c448320a 100644
+index 7caa15d8f..51b985749 100644
 --- a/doc/Guidebook.tex
 +++ b/doc/Guidebook.tex
-@@ -3735,6 +3735,13 @@ of showing a popup list of those objects.  A value of 0 means ``no limit''
+@@ -3895,6 +3895,13 @@ of showing a popup list of those objects.  A value of 0 means ``no limit''
  the objects'' since the pile size will always be at least that big;
  default value is 5.  Persistent.
  %.lp
@@ -99,12 +99,12 @@ index 290373da..c448320a 100644
  Values are {\it normal\/}, {\it explore\/}, or {\it debug\/}.
  Allows selection of explore mode (also known as discovery mode) or debug
 diff --git a/doc/Guidebook.txt b/doc/Guidebook.txt
-index 595c02aa..12ce1e14 100644
+index 9e9fc7b2e..6cda772a3 100644
 --- a/doc/Guidebook.txt
 +++ b/doc/Guidebook.txt
-@@ -3887,6 +3887,14 @@
-             at  which the message "there are few/several/many objects here"
-             is given instead of showing a popup list of those  objects.   A
+@@ -3443,6 +3443,14 @@
+             command instead.  If no weapon is found or the option is false,
+             the `t' (throw) command is executed instead.  Persistent.
  
 +          autosave
 +            Save and quit the game automatically, after playing for N turns
@@ -114,26 +114,23 @@ index 595c02aa..12ce1e14 100644
 +            down until save. 0 is not a valid turn count because this would
 +            cause the game to quit as soon as it starts.
 +
- 
-           NetHack 3.6                                      November 2, 2019
- 
-diff --git a/doc/fixes36.3 b/doc/fixes36.3
-index 85dbbdf7..5551f8c2 100644
---- a/doc/fixes36.3
-+++ b/doc/fixes36.3
-@@ -410,6 +410,10 @@ fulfill a request from a blind player to have a unique overriding SYMBOL for
- ROGUESYMBOLS can be overridden in config files like SYMBOLS can
- in symset:DECgraphics, set S_altar to 'pi' (was default '_'), S_bars to
- 	not-equals sign (was 'pi')
-+AUTOSAVE: autosave option, allowing to automatically save-and-quit game after
-+	N turns; can be used to limit game session length (e.g. for
-+	multiplayer games with shared character or shared public server
-+	account)
+           autounlock
+             Walking  into a locked door or looting a locked container while
+             carrying an unlocking tool (such as a key) will ask whether  to
+diff --git a/doc/fixes37.0 b/doc/fixes37.0
+index c381d5156..2b54c49e0 100644
+--- a/doc/fixes37.0
++++ b/doc/fixes37.0
+@@ -169,6 +169,7 @@ teach non-mindless monsters about the Castle trapdoors (github #265)
+ always print a message when the hero teleports (github #265)
+ always print a message when the hero level teleports (github #265)
+ remove Sokoban luck penalties for actions you can't cheat with (github #260)
++autosave option to automatically save-and-quit after N turns (github #213)
  
  
- NetHack Community Patches (or Variation) Included
+ Code Cleanup and Reorganization
 diff --git a/include/config.h b/include/config.h
-index d12576f9..78df5d4a 100644
+index f1af270ef..cf47e9767 100644
 --- a/include/config.h
 +++ b/include/config.h
 @@ -570,6 +570,11 @@ typedef unsigned char uchar;
@@ -149,10 +146,10 @@ index d12576f9..78df5d4a 100644
  
  #ifdef TTY_TILES_ESCCODES
 diff --git a/include/flag.h b/include/flag.h
-index 5370faab..a841ea7f 100644
+index 1379ebce8..fa8cce75a 100644
 --- a/include/flag.h
 +++ b/include/flag.h
-@@ -278,6 +278,9 @@ struct instance_flags {
+@@ -252,6 +252,9 @@ struct instance_flags {
      int menu_headings;    /* ATR for menu headings */
      int *opt_booldup;     /* for duplication of boolean opts in config file */
      int *opt_compdup;     /* for duplication of compound opts in conf file */
@@ -163,11 +160,11 @@ index 5370faab..a841ea7f 100644
      boolean altmeta;      /* Alt-c sends ESC c rather than M-c */
  #endif
 diff --git a/src/allmain.c b/src/allmain.c
-index 5111c69a..4d7bd985 100644
+index 22faeabd7..a82a298c5 100644
 --- a/src/allmain.c
 +++ b/src/allmain.c
-@@ -186,6 +186,11 @@ boolean resuming;
-                     if (flags.time && !context.run)
+@@ -195,6 +195,11 @@ boolean resuming;
+                     if (flags.time && !g.context.run)
                          iflags.time_botl = TRUE;
  
 +#ifdef AUTOSAVE
@@ -179,12 +176,12 @@ index 5111c69a..4d7bd985 100644
                       * not you get healed depends on your current hit points.
                       * If you are allowed to regenerate during the prayer,
 diff --git a/src/cmd.c b/src/cmd.c
-index dca4c54e..839940b5 100644
+index df02c6e4f..69a29def6 100644
 --- a/src/cmd.c
 +++ b/src/cmd.c
-@@ -4718,6 +4718,10 @@ register char *cmd;
+@@ -4824,6 +4824,10 @@ register char *cmd;
  #ifdef SAFERHANGUP
-     if (program_state.done_hup)
+     if (g.program_state.done_hup)
          end_of_input();
 +#endif
 +#ifdef AUTOSAVE
@@ -192,12 +189,12 @@ index dca4c54e..839940b5 100644
 +        dosave();
  #endif
      if (firsttime) {
-         context.nopick = 0;
+         g.context.nopick = 0;
 diff --git a/src/options.c b/src/options.c
-index c1c95c69..0b904814 100644
+index c95ce0731..1a291dbd8 100644
 --- a/src/options.c
 +++ b/src/options.c
-@@ -273,6 +273,9 @@ static struct Comp_Opt {
+@@ -278,6 +278,9 @@ static struct Comp_Opt {
      { "align_message", "message window alignment", 20, DISP_IN_GAME }, /*WC*/
      { "align_status", "status window alignment", 20, DISP_IN_GAME },   /*WC*/
      { "altkeyhandler", "alternate key handler", 20, SET_IN_GAME },
@@ -207,7 +204,7 @@ index c1c95c69..0b904814 100644
  #ifdef BACKWARD_COMPAT
      { "boulder", "deprecated (use S_boulder in sym file instead)", 1,
        SET_IN_GAME },
-@@ -734,6 +737,9 @@ initoptions_init()
+@@ -713,6 +716,9 @@ initoptions_init()
      flags.end_around = 2;
      flags.paranoia_bits = PARANOID_PRAY; /* old prayconfirm=TRUE */
      flags.pile_limit = PILE_LIMIT_DFLT;  /* 5 */
@@ -217,7 +214,7 @@ index c1c95c69..0b904814 100644
      flags.runmode = RUN_LEAP;
      iflags.msg_history = 20;
      /* msg_window has conflicting defaults for multi-interface binary */
-@@ -3084,6 +3090,30 @@ boolean tinitial, tfrom_file;
+@@ -3091,6 +3097,30 @@ boolean tinitial, tfrom_file;
          return retval;
      }
  
@@ -248,7 +245,7 @@ index c1c95c69..0b904814 100644
      /* play mode: normal, explore/discovery, or debug/wizard */
      fullname = "playmode";
      if (match_optname(opts, fullname, 4, TRUE)) {
-@@ -5785,6 +5815,11 @@ char *buf;
+@@ -5802,6 +5832,11 @@ char *buf;
          Sprintf(buf, "%s", ocl[0] ? ocl : "all");
      } else if (!strcmp(optname, "pile_limit")) {
          Sprintf(buf, "%d", flags.pile_limit);
@@ -261,10 +258,10 @@ index c1c95c69..0b904814 100644
          Strcpy(buf, wizard ? "debug" : discover ? "explore" : "normal");
      } else if (!strcmp(optname, "race")) {
 diff --git a/src/save.c b/src/save.c
-index e0af4b8d..4810e5ec 100644
+index a8729f735..8fc9cd092 100644
 --- a/src/save.c
 +++ b/src/save.c
-@@ -80,7 +80,11 @@ dosave()
+@@ -65,7 +65,11 @@ dosave()
      if (iflags.debug_fuzzer)
          return 0;
      clear_nhwindow(WIN_MESSAGE);
@@ -274,8 +271,8 @@ index e0af4b8d..4810e5ec 100644
      if (yn("Really save?") == 'n') {
 +#endif
          clear_nhwindow(WIN_MESSAGE);
-         if (multi > 0)
+         if (g.multi > 0)
              nomul(0);
 -- 
-2.23.0
+2.24.1
 

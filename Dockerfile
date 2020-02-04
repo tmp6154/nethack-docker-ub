@@ -16,11 +16,12 @@ RUN apt-get update && \
     apt-get install git \
     gcc \
     make \
-    flex \
-    bison \
     build-essential \
     konwert \
     ttyrec \
+    curl \
+    groff-base \
+    bsdmainutils \
     ncurses-dev -y
 
 # Make a new user
@@ -41,8 +42,9 @@ RUN git clone https://github.com/NetHack/NetHack.git && \
     cd NetHack && sh ./nh-pre.sh && for f in ./patches/*.patch; do \
     [ -e "$f" ] || continue; git apply --3way $f; done && \
     sh ./nh-defines.sh && cd sys/unix && \
-    sh setup.sh hints/linux && cd ../.. && make -j$((`nproc`+1)) && \
-    make install && cd .. && rm -rf NetHack
+    sh setup.sh hints/linux && cd ../.. && make fetch-lua && \
+    make -j$((`nproc`+1)) && make install && \
+    cd .. && rm -rf NetHack
 
 # Setup scripts
 
