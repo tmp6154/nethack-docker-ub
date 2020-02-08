@@ -8,6 +8,7 @@
 # Use colors for curses GUI display.      #
 # Display the permanent inventory window. #
 # Disclose with prompt (default to yes).  #
+# Opt-in for all status condition.        #
 ###########################################
 
 OPTIONS=windowtype:curses
@@ -18,6 +19,19 @@ OPTIONS=splash_screen
 OPTIONS=guicolor
 OPTIONS=perm_invent
 OPTIONS=disclose:yi ya yv yg yc yo
+OPTIONS=cond_barehanded
+OPTIONS=cond_busy
+OPTIONS=cond_glowhands
+OPTIONS=cond_held
+OPTIONS=cond_ice
+OPTIONS=cond_paralyze
+OPTIONS=cond_sleep
+OPTIONS=cond_slip
+OPTIONS=cond_submerged
+OPTIONS=cond_tethered
+OPTIONS=cond_trap
+OPTIONS=cond_unconscious
+OPTIONS=cond_woundedl
 
 ###################################################################
 # Automatization options:                                         #
