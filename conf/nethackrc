@@ -182,6 +182,7 @@ MSGTYPE=stop " is about to die."
 # Show gold increase with yellow, decrease with brown.              #
 # Show various stuff increase/decrease with green/red respectively. #
 # Assign each alignment a color.                                    #
+# Show various opt-in statuses with orange color.                   #
 # Show various troubles with red color and movement with green.     #
 # Show changes of title and dungeon level.                          #
 # Show carrying capacity with a color scale.                        #
@@ -207,6 +208,7 @@ OPTIONS=hilite_status: alignment/Chaotic/red
 OPTIONS=hilite_status: alignment/Neutral/yellow
 OPTIONS=hilite_status: alignment/Lawful/lightgreen
 
+OPTIONS=hilite_status: condition/opt_in/orange
 OPTIONS=hilite_status: condition/major_troubles/red&inverse
 OPTIONS=hilite_status: condition/minor_troubles/red&bold
 OPTIONS=hilite_status: condition/movement/lightgreen
