@@ -32,6 +32,7 @@ OPTIONS=cond_tethered
 OPTIONS=cond_trap
 OPTIONS=cond_unconscious
 OPTIONS=cond_woundedl
+OPTIONS=cond_holding
 
 ###################################################################
 # Automatization options:                                         #
