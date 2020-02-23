@@ -1,4 +1,4 @@
-From 56e60c2e761fd613dc61b39a98dc1b70570d45c0 Mon Sep 17 00:00:00 2001
+From f75f1784d6f39a9ff922f7da99648990483650c4 Mon Sep 17 00:00:00 2001
 From: Vitaly Ostrosablin <tmp6154@yandex.ru>
 Date: Tue, 13 Aug 2019 20:59:53 +0300
 Subject: [PATCH] add a new option: autosave
@@ -64,10 +64,10 @@ index e2170af78..0f3e5ca09 100644
  Some sample options lists are:
  !autopickup,!tombstone,name:Gandalf,scores:own/3 top/2 around
 diff --git a/doc/Guidebook.mn b/doc/Guidebook.mn
-index 655692fa1..fb7677125 100644
+index b88d35d46..542deb284 100644
 --- a/doc/Guidebook.mn
 +++ b/doc/Guidebook.mn
-@@ -3618,6 +3618,12 @@ A value of 0 means \(lqno limit\(rq
+@@ -3791,6 +3791,12 @@ A value of 0 means \(lqno limit\(rq
  the objects\(rq since the pile size will always be at least that big;
  default value is 5.
  Persistent.
@@ -81,10 +81,10 @@ index 655692fa1..fb7677125 100644
  Values are \(lqnormal\(rq, \(lqexplore\(rq, or \(lqdebug\(rq.
  Allows selection of explore mode (also known as discovery mode) or debug
 diff --git a/doc/Guidebook.tex b/doc/Guidebook.tex
-index b91e2d78a..df77249d7 100644
+index c3aa22c94..c646379d4 100644
 --- a/doc/Guidebook.tex
 +++ b/doc/Guidebook.tex
-@@ -3895,6 +3895,13 @@ of showing a popup list of those objects.  A value of 0 means ``no limit''
+@@ -4096,6 +4096,13 @@ of showing a popup list of those objects.  A value of 0 means ``no limit''
  the objects'' since the pile size will always be at least that big;
  default value is 5.  Persistent.
  %.lp
@@ -99,10 +99,10 @@ index b91e2d78a..df77249d7 100644
  Values are {\it normal\/}, {\it explore\/}, or {\it debug\/}.
  Allows selection of explore mode (also known as discovery mode) or debug
 diff --git a/doc/Guidebook.txt b/doc/Guidebook.txt
-index dfd1dc7f2..cdee3b090 100644
+index 58615d912..f1118a18a 100644
 --- a/doc/Guidebook.txt
 +++ b/doc/Guidebook.txt
-@@ -3538,6 +3538,14 @@
+@@ -3596,6 +3596,14 @@
              command instead.  If no weapon is found or the option is false,
              the `t' (throw) command is executed instead.  Persistent.
  
@@ -115,16 +115,16 @@ index dfd1dc7f2..cdee3b090 100644
 +            cause the game to quit as soon as it starts.
 +
            autounlock
-             Walking  into a locked door or looting a locked container while
-             carrying an unlocking tool (such as a key) will ask whether  to
+             Walking into a locked door or looting a locked container  while
+             carrying  an unlocking tool (such as a key) will ask whether to
 diff --git a/doc/fixes37.0 b/doc/fixes37.0
-index 7efd6d561..77068da4b 100644
+index 57d8d40d5..dfc8e1d8e 100644
 --- a/doc/fixes37.0
 +++ b/doc/fixes37.0
-@@ -189,6 +189,7 @@ correct the Guidebook descriptions for msdos video_width and video_height to
- 	state that they work with video:vesa; the video:vga setting that was 
+@@ -200,6 +200,7 @@ correct the Guidebook descriptions for msdos video_width and video_height to
  	described there forces the 640x480x16 mode where video_width and
  	video_height don't operate (github #294)
+ redo rndmonst() to operate in a single pass (github pull request #286)
 +autosave option to automatically save-and-quit after N turns (github #213)
  
  
@@ -146,10 +146,10 @@ index f1af270ef..cf47e9767 100644
  
  #ifdef TTY_TILES_ESCCODES
 diff --git a/include/flag.h b/include/flag.h
-index 1379ebce8..fa8cce75a 100644
+index 7d06e50ff..fe2a3c4da 100644
 --- a/include/flag.h
 +++ b/include/flag.h
-@@ -252,6 +252,9 @@ struct instance_flags {
+@@ -253,6 +253,9 @@ struct instance_flags {
      int menu_headings;    /* ATR for menu headings */
      int *opt_booldup;     /* for duplication of boolean opts in config file */
      int *opt_compdup;     /* for duplication of compound opts in conf file */
@@ -160,10 +160,10 @@ index 1379ebce8..fa8cce75a 100644
      boolean altmeta;      /* Alt-c sends ESC c rather than M-c */
  #endif
 diff --git a/src/allmain.c b/src/allmain.c
-index 4f60a3f82..9dbb85246 100644
+index 073054cbc..3e2ed6671 100644
 --- a/src/allmain.c
 +++ b/src/allmain.c
-@@ -195,6 +195,11 @@ boolean resuming;
+@@ -192,6 +192,11 @@ boolean resuming;
                      if (flags.time && !g.context.run)
                          iflags.time_botl = TRUE;
  
@@ -176,10 +176,10 @@ index 4f60a3f82..9dbb85246 100644
                       * not you get healed depends on your current hit points.
                       * If you are allowed to regenerate during the prayer,
 diff --git a/src/cmd.c b/src/cmd.c
-index 94d5e245b..42910e114 100644
+index 6daa3026f..b44eadbcc 100644
 --- a/src/cmd.c
 +++ b/src/cmd.c
-@@ -3062,6 +3062,10 @@ register char *cmd;
+@@ -3076,6 +3076,10 @@ register char *cmd;
  #ifdef SAFERHANGUP
      if (g.program_state.done_hup)
          end_of_input();
@@ -191,7 +191,7 @@ index 94d5e245b..42910e114 100644
      if (firsttime) {
          g.context.nopick = 0;
 diff --git a/src/options.c b/src/options.c
-index 13ece0927..2b0dc592c 100644
+index 3ede3def4..4952d993b 100644
 --- a/src/options.c
 +++ b/src/options.c
 @@ -278,6 +278,9 @@ static struct Comp_Opt {
@@ -258,7 +258,7 @@ index 13ece0927..2b0dc592c 100644
          Strcpy(buf, wizard ? "debug" : discover ? "explore" : "normal");
      } else if (!strcmp(optname, "race")) {
 diff --git a/src/save.c b/src/save.c
-index 4ed4bcde0..21db488cc 100644
+index 1bde78213..0c3852c53 100644
 --- a/src/save.c
 +++ b/src/save.c
 @@ -65,7 +65,11 @@ dosave()
@@ -274,5 +274,5 @@ index 4ed4bcde0..21db488cc 100644
          if (g.multi > 0)
              nomul(0);
 -- 
-2.25.0
+2.24.1
 
