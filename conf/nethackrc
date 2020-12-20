@@ -76,6 +76,7 @@ SYMBOLS=S_strange_obj:m
 # Preferences:                                             #
 # Show full message window.                                #
 # Sort loot both on ground and in inventory.               #
+# Sort discoveries with sortloot.                          #
 # Always show inventory menu instead of letter choice.     #
 # Name a customizable fruit (Slime Mold) as "mango".       #
 # Always show uncursed items as "uncursed".                #
@@ -91,6 +92,7 @@ SYMBOLS=S_strange_obj:m
 
 OPTIONS=msg_window:full
 OPTIONS=sortloot:full
+OPTIONS=sortdiscoveries:s
 OPTIONS=force_invmenu
 OPTIONS=fruit:mango
 OPTIONS=!implicit_uncursed
